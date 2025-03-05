@@ -18,10 +18,8 @@ contract DeployDeFiLending is Script {
         console.log("DeFiLending Implementation Address:", address(lendingImpl));
 
         // Deploy the proxy with encoded initializer call
-        ERC1967Proxy proxy = new ERC1967Proxy(
-            address(lendingImpl),
-            abi.encodeWithSignature("initialize(address)", USDC_ADDRESS)
-        );
+        ERC1967Proxy proxy =
+            new ERC1967Proxy(address(lendingImpl), abi.encodeWithSignature("initialize(address)", USDC_ADDRESS));
         console.log("DeFiLending Proxy Address:", address(proxy));
 
         vm.stopBroadcast();

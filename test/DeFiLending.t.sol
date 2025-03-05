@@ -34,10 +34,8 @@ contract DeFiLendingTest is Test {
         DeFiLending implementation = new DeFiLending();
 
         // Deploy proxy with initialization
-        proxy = new ERC1967Proxy(
-            address(implementation),
-            abi.encodeWithSignature("initialize(address)", address(token))
-        );
+        proxy =
+            new ERC1967Proxy(address(implementation), abi.encodeWithSignature("initialize(address)", address(token)));
 
         // Cast proxy address to DeFiLending interface
         lending = DeFiLending(address(proxy));
@@ -78,9 +76,6 @@ contract DeFiLendingTest is Test {
         lending.upgradeToAndCall(address(newImplementation), "");
 
         // Verify that the upgrade was successful
-        assertEq(
-            DeFiLendingV2(address(lending)).version(),
-            "v2"
-        );
+        assertEq(DeFiLendingV2(address(lending)).version(), "v2");
     }
 }

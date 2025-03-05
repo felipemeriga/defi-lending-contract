@@ -16,10 +16,7 @@ contract UpgradeDeFiLending is Script {
         console.log("New Implementation Address:", address(newImplementation));
 
         // Upgrade the proxy
-        DeFiLending(payable(PROXY_ADDRESS)).upgradeToAndCall(
-            address(newImplementation),
-            ""
-        );
+        DeFiLending(payable(PROXY_ADDRESS)).upgradeToAndCall(address(newImplementation), "");
 
         console.log("Upgrade successful!");
 
