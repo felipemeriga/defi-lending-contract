@@ -110,7 +110,7 @@ contract DeFiLendingTest is Test {
         token.approve(address(lending), 100 * 1e6);
         lending.deposit(100 * 1e6);
 
-        vm.expectRevert("Insufficient collateral");
+        vm.expectRevert("Insufficient collateral. Your collateral: 100000000. Liquidation threshold: 75. The amount you asked to borrow was: 90000000. The maximum amount you can borrow is: 75000000");
         // Expect the test to fail, due to borrowing above liquidation threshold
         lending.borrow(90 * 1e6);
     }
@@ -135,7 +135,7 @@ contract DeFiLendingTest is Test {
         // Calling borrow(0) will first accrue interest.
         // We expect it to revert if the new debt (with accrued interest) exceeds the allowed threshold.
         vm.startPrank(user);
-        vm.expectRevert("Insufficient collateral");
+        vm.expectRevert("Insufficient collateral. Your collateral: 100000000. Liquidation threshold: 75. The amount you asked to borrow was: 0. The maximum amount you can borrow is: 75000000");
         lending.borrow(0);
         vm.stopPrank();
 

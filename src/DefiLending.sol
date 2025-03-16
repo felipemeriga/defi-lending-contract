@@ -52,6 +52,22 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         depositIndex = 1e18; // High precision starting index
     }
 
+    // This function is mostly called by owner during contract upgrade, since we don't have
+    // how to initialize again the implementation contract
+    function setLiquidationThresholdPublic(uint _liquidationThreshold) public onlyOwner {
+        setLiquidationThreshold(_liquidationThreshold);
+    }
+
+    function setLiquidationThreshold(uint _liquidationThreshold) internal {
+        liquidationThreshold = _liquidationThreshold;
+    }
+
+    function setDepositIndex(uint _depositIndex) public onlyOwner {
+        if(depositIndex == 0) {
+            depositIndex = _depositIndex;
+        }
+    }
+
     // ---------- Deposits & Withdrawals ----------
 
     // When a user deposits USDC, they receive deposit shares.
@@ -69,6 +85,11 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         totalDepositShares += shares;
 
         emit Deposited(msg.sender, amount, shares);
+    }
+
+    function sharesCurrentValue() external view returns (uint256 shareValues) {
+        uint256 amount = (depositShares[msg.sender] * depositIndex) / 1e18;
+        return amount;
     }
 
     // Withdraw function redeems deposit shares for USDC based on the current deposit index.
@@ -131,6 +152,25 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return 0;
     }
 
+    function toString(uint256 value) internal pure returns(string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
     // Borrow function: user borrows USDC up to a threshold based on their collateral.
     function borrow(uint256 amount) external {
         require(deposits[msg.sender] > 0, "No collateral provided");
@@ -138,7 +178,14 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         _accrueInterest(msg.sender);
         BorrowInfo storage info = borrows[msg.sender];
         uint256 maxBorrowable = (deposits[msg.sender] * liquidationThreshold) / 100;
-        require(info.principal + amount <= maxBorrowable, "Insufficient collateral");
+        require(info.principal + amount <= maxBorrowable,
+            string(abi.encodePacked(
+                "Insufficient collateral. Your collateral: ", toString(deposits[msg.sender]),
+                ". Liquidation threshold: ", toString(liquidationThreshold),
+                ". The amount you asked to borrow was: ", toString(amount),
+                ". The maximum amount you can borrow is: ", toString(maxBorrowable)
+            ))
+        );
 
         info.principal += amount;
         totalBorrows += amount;
