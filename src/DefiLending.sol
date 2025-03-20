@@ -54,16 +54,16 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     // This function is mostly called by owner during contract upgrade, since we don't have
     // how to initialize again the implementation contract
-    function setLiquidationThresholdPublic(uint _liquidationThreshold) public onlyOwner {
+    function setLiquidationThresholdPublic(uint256 _liquidationThreshold) public onlyOwner {
         setLiquidationThreshold(_liquidationThreshold);
     }
 
-    function setLiquidationThreshold(uint _liquidationThreshold) internal {
+    function setLiquidationThreshold(uint256 _liquidationThreshold) internal {
         liquidationThreshold = _liquidationThreshold;
     }
 
-    function setDepositIndex(uint _depositIndex) public onlyOwner {
-        if(depositIndex == 0) {
+    function setDepositIndex(uint256 _depositIndex) public onlyOwner {
+        if (depositIndex == 0) {
             depositIndex = _depositIndex;
         }
     }
@@ -152,7 +152,7 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return 0;
     }
 
-    function toString(uint256 value) internal pure returns(string memory) {
+    function toString(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
             return "0";
         }
@@ -178,13 +178,20 @@ contract DeFiLending is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         _accrueInterest(msg.sender);
         BorrowInfo storage info = borrows[msg.sender];
         uint256 maxBorrowable = (deposits[msg.sender] * liquidationThreshold) / 100;
-        require(info.principal + amount <= maxBorrowable,
-            string(abi.encodePacked(
-                "Insufficient collateral. Your collateral: ", toString(deposits[msg.sender]),
-                ". Liquidation threshold: ", toString(liquidationThreshold),
-                ". The amount you asked to borrow was: ", toString(amount),
-                ". The maximum amount you can borrow is: ", toString(maxBorrowable)
-            ))
+        require(
+            info.principal + amount <= maxBorrowable,
+            string(
+                abi.encodePacked(
+                    "Insufficient collateral. Your collateral: ",
+                    toString(deposits[msg.sender]),
+                    ". Liquidation threshold: ",
+                    toString(liquidationThreshold),
+                    ". The amount you asked to borrow was: ",
+                    toString(amount),
+                    ". The maximum amount you can borrow is: ",
+                    toString(maxBorrowable)
+                )
+            )
         );
 
         info.principal += amount;

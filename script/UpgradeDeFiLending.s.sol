@@ -10,8 +10,8 @@ contract UpgradeDeFiLending is Script {
 
         // Replace with your actual proxy address
         address PROXY_ADDRESS = 0x6b338b0ab70B08ABEf6F4344F8dB3Bd3e42591Cc;
-        uint NEW_LIQUIDATION_THRESHOLD = 75; // replace with your intended value
-        uint NEW_DEPOSIT_INDEX = 1e18; // replace with your intended value
+        uint256 NEW_LIQUIDATION_THRESHOLD = 75; // replace with your intended value
+        uint256 NEW_DEPOSIT_INDEX = 1e18; // replace with your intended value
 
         // Deploy new implementation
         DeFiLending newImplementation = new DeFiLending();
@@ -25,7 +25,7 @@ contract UpgradeDeFiLending is Script {
         bytes4 selector = DeFiLending.setLiquidationThresholdPublic.selector;
         bytes memory data = abi.encodeWithSelector(selector, NEW_LIQUIDATION_THRESHOLD);
 
-        (bool success, ) = PROXY_ADDRESS.call(data);
+        (bool success,) = PROXY_ADDRESS.call(data);
         require(success, "Setting liquidationThreshold failed");
 
         // Now, call the new function setDepositIndex
@@ -33,7 +33,7 @@ contract UpgradeDeFiLending is Script {
         bytes4 depositSelector = DeFiLending.setDepositIndex.selector;
         bytes memory depositData = abi.encodeWithSelector(depositSelector, NEW_DEPOSIT_INDEX);
 
-        (bool depositSuccess, ) = PROXY_ADDRESS.call(depositData);
+        (bool depositSuccess,) = PROXY_ADDRESS.call(depositData);
         require(depositSuccess, "Setting depositIndex failed");
 
         console.log("Upgrade successful!");
